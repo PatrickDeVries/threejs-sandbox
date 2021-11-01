@@ -25,11 +25,11 @@ const CenteredA = styled.a`
 export default function Home() {
   return (
     <>
-      <GreetingBlock>
+      {/* <GreetingBlock>
         <Text color="black" StyledContainer={IntroText} size="2rem">
           Welcome to my website
         </Text>
-      </GreetingBlock>
+      </GreetingBlock> */}
     </>
   );
 }

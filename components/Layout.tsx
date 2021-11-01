@@ -91,7 +91,11 @@ const Layout = props => {
         Math.random() * visibleHeight - visibleHeight / 2,
         0,
       );
-      velocities.push(Math.random() * 0.02 - 0.01, Math.random() * 0.02 - 0.01, 0);
+      velocities.push(
+        (Math.round(Math.random()) * 2 - 1) * (Math.random() * 0.002 + 0.01),
+        (Math.round(Math.random()) * 2 - 1) * (Math.random() * 0.002 + 0.007),
+        0,
+      );
     }
     particles.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
     particles.setAttribute('velocity', new THREE.BufferAttribute(new Float32Array(velocities), 3));
@@ -117,9 +121,29 @@ const Layout = props => {
         );
         if (pps.getX(i) > visibleWidth / 2 || pps.getX(i) < -visibleWidth / 2) {
           pvs.setX(i, pvs.getX(i) * -1);
+        } else {
+          if (i > 0 && i % 100 !== 0) {
+            if (pps.getX(i - 1) > pps.getX(i)) {
+              pvs.setX(i, Math.abs(pvs.getX(i)));
+            } else {
+              pvs.setX(i, -Math.abs(pvs.getX(i)));
+            }
+          } else {
+            pvs.setX(i, pvs.getX(i) * (Math.random() * 1 + 1));
+          }
         }
         if (pps.getY(i) > visibleHeight / 2 || pps.getY(i) < -visibleHeight / 2) {
           pvs.setY(i, pvs.getY(i) * -1);
+        } else {
+          if (i > 0 && i % 100 !== 0) {
+            if (pps.getY(i - 1) > pps.getY(i)) {
+              pvs.setY(i, Math.abs(pvs.getY(i)));
+            } else {
+              pvs.setY(i, -Math.abs(pvs.getY(i)));
+            }
+          } else {
+            pvs.setY(i, pvs.getY(i) * (Math.random() * 1 + 1));
+          }
         }
       }
     };
