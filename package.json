@@ -9,12 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headstorm/foundry-react-ui": "^1.13.1",
     "next": "12.0.2",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "styled-components": "^5.3.3",
+    "three": "^0.134.0"
   },
   "devDependencies": {
+    "@types/react": "^17.0.33",
     "eslint": "7.32.0",
-    "eslint-config-next": "12.0.2"
+    "eslint-config-next": "12.0.2",
+    "typescript": "^4.4.4"
   }
 }
