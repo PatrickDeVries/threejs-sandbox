@@ -59,7 +59,6 @@ const Layout = props => {
       mouse.x = (event.clientX / dimensions.width) * 2 - 1;
       mouse.y = -(event.clientY / dimensions.height) * 2 + 1;
     };
-    const particleCount = 5000;
     const particles = new THREE.BufferGeometry();
     const pMaterial = new THREE.PointsMaterial({
       size: 0.1,
@@ -83,6 +82,11 @@ const Layout = props => {
     const visibleWidth = visibleWidthAtZDepth(0, camera);
     const visibleHeight = visibleHeightAtZDepth(0, camera);
 
+    const particleCount = 5000;
+    const baseV = 0.03;
+    const vVariance = 0.003;
+    const baseTurnSpeed = 0.02 * Math.PI;
+    const turnVariance = 0.002 * Math.PI;
     const positions = [];
     const velocities = [];
     const angles = [];
@@ -92,8 +96,8 @@ const Layout = props => {
         Math.random() * visibleHeight - visibleHeight / 2,
         0,
       );
-      // velocities.push(Math.random() * 0.01 + 0.001, Math.random() * 0.1 * Math.PI, 0);
-      velocities.push(0.01 + 0.001, 0.01 * Math.PI, 0);
+      velocities.push(Math.random() * vVariance, Math.random() * turnVariance, 0);
+      // velocities.push(0.01 + 0.001, 0.01 * Math.PI, 0);
 
       angles.push(Math.random() * 2 * Math.PI);
 
@@ -127,7 +131,9 @@ const Layout = props => {
     const updatePositions = () => {
       for (let i = 0, l = particleCount; i < l; i++) {
         let angle = pas.getX(i);
-        let v = pvs.getX(i);
+        let v = pvs.getX(i) + baseV;
+        let turnV = pvs.getY(i) + baseTurnSpeed;
+
         pps.setXY(i, pps.getX(i) + v * Math.cos(angle), pps.getY(i) + v * Math.sin(angle));
 
         if (pps.getX(i) > visibleWidth / 2 || pps.getX(i) < -visibleWidth / 2) {
@@ -145,16 +151,16 @@ const Layout = props => {
           // } else {
           //   pps.setY(i, -visibleHeight / 2 + v * Math.sin(angle));
           // }
-        } else if (i % 100 !== 0 && i > 0) {
+          // } else if (i % 100 !== 0 && i > 0) {
+        } else if (i % 200 !== 0 && i > 0) {
           let goalAngle = Math.atan2(pps.getY(i - 1) - pps.getY(i), pps.getX(i - 1) - pps.getX(i));
           let newAngle =
-            ((goalAngle - angle + Math.PI) % pi2) - Math.PI < pvs.getY(i)
+            ((goalAngle - angle + Math.PI) % pi2) - Math.PI < turnV
               ? goalAngle
               : goalAngle > (angle + Math.PI) % pi2
-              ? angle - pvs.getY(i)
-              : angle + pvs.getY(i);
+              ? angle - turnV
+              : angle + turnV;
           pas.setX(i, newAngle % pi2);
-        } else {
         }
         // pas.setX(i, (angle + pvs.getY(i)) % pi2);
       }
