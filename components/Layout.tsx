@@ -85,20 +85,30 @@ const Layout = props => {
 
     const positions = [];
     const velocities = [];
+    const angles = [];
     for (let i = 0; i < particleCount; i++) {
       positions.push(
         Math.random() * visibleWidth - visibleWidth / 2,
         Math.random() * visibleHeight - visibleHeight / 2,
         0,
       );
-      velocities.push(
-        (Math.round(Math.random()) * 2 - 1) * (Math.random() * 0.002 + 0.01),
-        (Math.round(Math.random()) * 2 - 1) * (Math.random() * 0.002 + 0.007),
-        0,
-      );
+      // velocities.push(Math.random() * 0.01 + 0.001, Math.random() * 0.1 * Math.PI, 0);
+      velocities.push(0.01 + 0.001, 0.01 * Math.PI, 0);
+
+      angles.push(Math.random() * 2 * Math.PI);
+
+      // velocities.push(
+      //   (Math.round(Math.random()) * 2 - 1) * (Math.random() * 0.002 + 0.01),
+      //   (Math.round(Math.random()) * 2 - 1) * (Math.random() * 0.002 + 0.007),
+      //   0,
+      // );
     }
     particles.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
     particles.setAttribute('velocity', new THREE.BufferAttribute(new Float32Array(velocities), 3));
+    particles.setAttribute('angles', new THREE.BufferAttribute(new Float32Array(angles), 1));
+
+    console.log(particles.attributes.velocity);
+    console.log(particles.attributes.angles);
 
     const particleSystem = new THREE.Points(particles, pMaterial);
 
@@ -108,43 +118,45 @@ const Layout = props => {
     console.log(particleSystem);
     console.log(particles);
 
-    const updatePositions = () => {
-      const pps = particles.attributes.position;
-      const pvs = particles.attributes.velocity;
+    const pi2 = Math.PI * 2;
 
+    const pps = particles.attributes.position;
+    const pvs = particles.attributes.velocity;
+    const pas = particles.attributes.angles;
+
+    const updatePositions = () => {
       for (let i = 0, l = particleCount; i < l; i++) {
-        pps.setXYZ(
-          i,
-          pps.getX(i) + pvs.getX(i),
-          pps.getY(i) + pvs.getY(i),
-          pps.getZ(i) + pvs.getZ(i),
-        );
+        let angle = pas.getX(i);
+        let v = pvs.getX(i);
+        pps.setXY(i, pps.getX(i) + v * Math.cos(angle), pps.getY(i) + v * Math.sin(angle));
+
         if (pps.getX(i) > visibleWidth / 2 || pps.getX(i) < -visibleWidth / 2) {
-          pvs.setX(i, pvs.getX(i) * -1);
+          pas.setX(i, Math.atan2(v * Math.sin(angle), -v * Math.cos(angle)));
+
+          // if (pps.getX(i) > visibleWidth / 2) {
+          //   pps.setX(i, visibleWidth / 2 + v * Math.cos(angle));
+          // } else {
+          //   pps.setX(i, -visibleWidth / 2 + v * Math.cos(angle));
+          // }
+        } else if (pps.getY(i) > visibleHeight / 2 || pps.getY(i) < -visibleHeight / 2) {
+          pas.setX(i, Math.atan2(-v * Math.sin(angle), v * Math.cos(angle)));
+          // if (pps.getY(i) > visibleHeight / 2) {
+          //   pps.setY(i, visibleHeight / 2 + v * Math.sin(angle));
+          // } else {
+          //   pps.setY(i, -visibleHeight / 2 + v * Math.sin(angle));
+          // }
+        } else if (i % 100 !== 0 && i > 0) {
+          let goalAngle = Math.atan2(pps.getY(i - 1) - pps.getY(i), pps.getX(i - 1) - pps.getX(i));
+          let newAngle =
+            ((goalAngle - angle + Math.PI) % pi2) - Math.PI < pvs.getY(i)
+              ? goalAngle
+              : goalAngle > (angle + Math.PI) % pi2
+              ? angle - pvs.getY(i)
+              : angle + pvs.getY(i);
+          pas.setX(i, newAngle % pi2);
         } else {
-          if (i > 0 && i % 100 !== 0) {
-            if (pps.getX(i - 1) > pps.getX(i)) {
-              pvs.setX(i, Math.abs(pvs.getX(i)));
-            } else {
-              pvs.setX(i, -Math.abs(pvs.getX(i)));
-            }
-          } else {
-            pvs.setX(i, pvs.getX(i) * (Math.random() * 1 + 1));
-          }
         }
-        if (pps.getY(i) > visibleHeight / 2 || pps.getY(i) < -visibleHeight / 2) {
-          pvs.setY(i, pvs.getY(i) * -1);
-        } else {
-          if (i > 0 && i % 100 !== 0) {
-            if (pps.getY(i - 1) > pps.getY(i)) {
-              pvs.setY(i, Math.abs(pvs.getY(i)));
-            } else {
-              pvs.setY(i, -Math.abs(pvs.getY(i)));
-            }
-          } else {
-            pvs.setY(i, pvs.getY(i) * (Math.random() * 1 + 1));
-          }
-        }
+        // pas.setX(i, (angle + pvs.getY(i)) % pi2);
       }
     };
 
