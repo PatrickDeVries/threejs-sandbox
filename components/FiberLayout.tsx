@@ -86,13 +86,18 @@ const Particles = props => {
   }
 
   const pi2 = Math.PI * 2;
+  let count = 0;
 
   const updatePositions = () => {
     if (particles.current) {
+      count += 1;
       // console.log('particles', particles);
       const pps: BufferAttribute = particles.current['attributes']['position'] as BufferAttribute;
       const pvs: BufferAttribute = particles.current['attributes']['velocity'] as BufferAttribute;
       const pas: BufferAttribute = particles.current['attributes']['angle'] as BufferAttribute;
+      if (count < 10) {
+        console.log('p', pps, 'v', pvs, 'a', pas);
+      }
       // console.log('pas', pas);
       for (let i = 0, l = particleCount; i < l; i++) {
         let angle = pas.getX(i);
@@ -100,6 +105,9 @@ const Particles = props => {
         let turnV = pvs.getY(i) + baseTurnSpeed;
 
         pps.setXY(i, pps.getX(i) + v * Math.cos(angle), pps.getY(i) + v * Math.sin(angle));
+        if (i === 0 && count < 10) {
+          console.log('a', angle, 'v', v, 't', turnV);
+        }
 
         if (pps.getX(i) > viewport.width / 2 || pps.getX(i) < -viewport.width / 2) {
           pas.setX(i, Math.atan2(v * Math.sin(angle), -v * Math.cos(angle)));
@@ -121,6 +129,7 @@ const Particles = props => {
 
   useFrame(() => {
     updatePositions();
+    particles.current['attributes']['position'].needsUpdate = true;
   });
 
   // const particleTexture = useLoader(TextureLoader, 'particle.png');
