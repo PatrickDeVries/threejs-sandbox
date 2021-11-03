@@ -1,11 +1,12 @@
 import '../styles/globals.css';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout';
+import FiberLayout from '../components/FiberLayout';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <Layout>
+    <FiberLayout>
       <Component {...pageProps} />
-    </Layout>
+    </FiberLayout>
   );
 }
 
