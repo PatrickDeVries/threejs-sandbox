@@ -21,7 +21,6 @@ const BgCanvas = styled.div`
 
 const Particles = props => {
   const viewport = useThree(state => state.viewport);
-  console.log('viewport', viewport);
   const particles = useRef<BufferGeometry>();
   const pointRef = useRef<Points>();
   const particleCount = 5000;
