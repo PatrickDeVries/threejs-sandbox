@@ -63,7 +63,6 @@ const Particles = props => {
   const turnVariance = props.turnVar;
 
   if (props.positions.length < particleCount) {
-    console.log('set');
     const positions = [];
     const velocities = [];
     const angles = [];
@@ -74,7 +73,17 @@ const Particles = props => {
         0,
       );
       velocities.push(Math.random(), Math.random(), 0);
-      angles.push(Math.random() * 2 * Math.PI);
+      let newA = Math.random() * 2 * Math.PI;
+      if (
+        newA < 0.01 ||
+        newA > Math.PI - 0.01 ||
+        (newA < Math.PI / 2 - 0.01 && newA > Math.PI / 2 + 0.01) ||
+        (newA < Math.PI / 4 - 0.01 && newA > Math.PI / 4 + 0.01) ||
+        (newA < (Math.PI * 3) / 4 - 0.01 && newA > (Math.PI * 3) / 4 + 0.01)
+      ) {
+        newA += 0.03;
+      }
+      angles.push(newA);
     }
 
     props.setPositions(positions);
@@ -109,6 +118,13 @@ const Particles = props => {
               : goalAngle > (angle + Math.PI) % pi2
               ? angle - turnV
               : angle + turnV;
+          if (
+            newAngle % pi2 < 0.01 ||
+            newAngle % pi2 > Math.PI - 0.01 ||
+            (newAngle < Math.PI / 4 - 0.01 && newAngle > Math.PI / 4 + 0.01)
+          ) {
+            newAngle += 0.05;
+          }
           pas.setX(i, newAngle % pi2);
         }
       }
@@ -162,8 +178,8 @@ const FiberLayout = () => {
   const [particleCount, setParticleCount] = React.useState<number>(5000);
   const [baseV, setBaseV] = React.useState<number>(0.05);
   const [vVar, setVVar] = React.useState<number>(0.003);
-  const [baseTurnV, setBaseTurnV] = React.useState<number>(0.02 * Math.PI);
-  const [turnVar, setTurnVar] = React.useState<number>(0.002 * Math.PI);
+  const [baseTurnV, setBaseTurnV] = React.useState<number>(0.03 * Math.PI);
+  const [turnVar, setTurnVar] = React.useState<number>(0.003 * Math.PI);
   const [freeRate, setFreeRate] = React.useState<number>(200);
   const [color, setColor] = React.useState<string>('#114455');
 
@@ -268,7 +284,7 @@ const FiberLayout = () => {
               <Label labelText="Base Turn Speed" color="black">
                 <RangeSlider
                   min={0}
-                  max={Math.PI / 4}
+                  max={parseFloat((Math.PI / 4).toFixed(4))}
                   values={[{ value: baseTurnV, label: parseFloat(baseTurnV.toFixed(4)) }]}
                   showDomainLabels
                   showHandleLabels
@@ -281,7 +297,7 @@ const FiberLayout = () => {
               <Label labelText="Turn Speed Variance" color="black">
                 <RangeSlider
                   min={0}
-                  max={Math.PI / 4}
+                  max={parseFloat((Math.PI / 4).toFixed(4))}
                   values={[{ value: turnVar, label: parseFloat(turnVar.toFixed(4)) }]}
                   showDomainLabels
                   showHandleLabels
