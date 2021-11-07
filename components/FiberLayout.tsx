@@ -77,9 +77,9 @@ const Particles = props => {
       if (
         newA < 0.01 ||
         newA > Math.PI - 0.01 ||
-        (newA < Math.PI / 2 - 0.01 && newA > Math.PI / 2 + 0.01) ||
-        (newA < Math.PI / 4 - 0.01 && newA > Math.PI / 4 + 0.01) ||
-        (newA < (Math.PI * 3) / 4 - 0.01 && newA > (Math.PI * 3) / 4 + 0.01)
+        (newA < Math.PI / 2 + 0.01 && newA > Math.PI / 2 - 0.01) ||
+        (newA < Math.PI / 4 + 0.01 && newA > Math.PI / 4 - 0.01) ||
+        (newA < (Math.PI * 3) / 4 + 0.01 && newA > (Math.PI * 3) / 4 - 0.01)
       ) {
         newA += 0.03;
       }
@@ -118,13 +118,17 @@ const Particles = props => {
               : goalAngle > (angle + Math.PI) % pi2
               ? angle - turnV
               : angle + turnV;
-          if (
-            newAngle % pi2 < 0.01 ||
-            newAngle % pi2 > Math.PI - 0.01 ||
-            (newAngle < Math.PI / 4 - 0.01 && newAngle > Math.PI / 4 + 0.01)
-          ) {
-            newAngle += 0.05;
-          }
+          // if (newAngle % pi2 < 0.01) {
+          //   if (pps.getX(i) > 0) {
+          //     newAngle += 0.05;
+          //   } else {
+          //     newAngle -= 0.05;
+          //   }
+          // } else if (newAngle % pi2 < Math.PI / 4 + 0.01 && newAngle % pi2 > Math.PI / 4) {
+          //   if (pps.getY(i) > 0) {
+          //     newAngle += 0.05;
+          //   }
+          // }
           pas.setX(i, newAngle % pi2);
         }
       }
