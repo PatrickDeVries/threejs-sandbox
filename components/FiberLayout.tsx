@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
-import { Canvas, render, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, extend, useFrame, useThree } from '@react-three/fiber';
 import styled from 'styled-components';
 import { AdditiveBlending, BufferAttribute, BufferGeometry, Points, TextureLoader } from 'three';
-import * as THREE from 'three';
 import { Button, RangeSlider, Text, Card, Label, TextInput } from '@headstorm/foundry-react-ui';
 import Icon from '@mdi/react';
 import { mdiChevronDown, mdiChevronUp } from '@mdi/js';
+import './particlematerial';
 
 const BgCanvas = styled.div`
   position: fixed;
@@ -61,6 +61,10 @@ const Particles = props => {
   const vVariance = props.vVar;
   const baseTurnSpeed = props.baseTurnV;
   const turnVariance = props.turnVar;
+  const sizes = [];
+  for (let i = 0; i < 999999; i++) {
+    sizes.push(5);
+  }
 
   if (props.positions.length < particleCount) {
     const positions = [];
@@ -104,12 +108,31 @@ const Particles = props => {
         let v = pvs.getX(i) * vVariance + baseV;
         let turnV = pvs.getY(i) * turnVariance + baseTurnSpeed;
 
+        //TODO: decide if i want this
+        // if (Math.random() > 0.9999) {
+        //   pps.setXY(i, 0, 0);
+        // } else {
         pps.setXY(i, pps.getX(i) + v * Math.cos(angle), pps.getY(i) + v * Math.sin(angle));
+        // }
 
         if (pps.getX(i) > viewport.width / 2 || pps.getX(i) < -viewport.width / 2) {
           pas.setX(i, Math.atan2(v * Math.sin(angle), -v * Math.cos(angle)));
+          // reset if it has somehow escaped
+          if (
+            pps.getX(i) + v * Math.cos(pas.getX(i)) > viewport.width / 2 ||
+            pps.getX(i) + v * Math.cos(pas.getX(i)) < -viewport.width / 2
+          ) {
+            pps.setXY(i, 0, 0);
+          }
         } else if (pps.getY(i) > viewport.height / 2 || pps.getY(i) < -viewport.height / 2) {
           pas.setX(i, Math.atan2(-v * Math.sin(angle), v * Math.cos(angle)));
+          // reset if it has somehow escaped
+          if (
+            pps.getY(i) + v * Math.sin(pas.getX(i)) > viewport.height / 2 ||
+            pps.getY(i) + v * Math.sin(pas.getX(i)) < -viewport.height / 2
+          ) {
+            pps.setXY(i, 0, 0);
+          }
         } else if (i % props.freeRate !== 0 && i > 0) {
           let goalAngle = Math.atan2(pps.getY(i - 1) - pps.getY(i), pps.getX(i - 1) - pps.getX(i));
           let newAngle =
@@ -164,17 +187,24 @@ const Particles = props => {
           array={new Float32Array(props.angles)}
           itemSize={1}
         />
+        <bufferAttribute
+          attachObject={['attributes', 'size']}
+          count={particleCount}
+          array={new Float32Array(sizes)}
+          itemSize={1}
+        />
       </bufferGeometry>
-      <pointsMaterial
-        attach="material"
-        size={0.1}
-        color={props.color}
-        map={new TextureLoader().load('/particle.png')}
-        blending={AdditiveBlending}
-      />
+      <particleMaterial />
     </points>
   );
 };
+// {/* <pointsMaterial
+//   attach="material"
+//   size={0.1}
+//   color={props.color}
+//   map={new TextureLoader().load('/particle.png')}
+//   blending={AdditiveBlending}
+// /> */}
 
 const FiberLayout = () => {
   const [visibleControls, setVibisibleControls] = React.useState<boolean>(true);
@@ -206,8 +236,6 @@ const FiberLayout = () => {
         <ambientLight intensity={0.5} />
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />
-        <bufferGeometry />
-        <pointsMaterial />
         <Particles
           particleCount={particleCount}
           baseV={baseV}
