@@ -1,3 +1,3 @@
-import FiberLayout from './FiberLayout';
+import FiberLayout from './FiberLayout'
 
-export { FiberLayout };
+export { FiberLayout }

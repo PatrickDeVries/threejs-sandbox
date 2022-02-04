@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { extend, ReactThreeFiber } from '@react-three/fiber';
+import { extend, ReactThreeFiber } from '@react-three/fiber'
+import * as THREE from 'three'
 
 export class ParticleMaterial extends THREE.ShaderMaterial {
   constructor() {
@@ -28,16 +28,16 @@ export class ParticleMaterial extends THREE.ShaderMaterial {
         gl_FragColor = vec4(mix(colorA, colorB, vUv.x*0.3), 1.0);
       }
       `,
-    });
+    })
   }
 }
 
-extend({ ParticleMaterial });
+extend({ ParticleMaterial })
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      particleMaterial: ReactThreeFiber.Object3DNode<ParticleMaterial, typeof ParticleMaterial>;
+      particleMaterial: ReactThreeFiber.Object3DNode<ParticleMaterial, typeof ParticleMaterial>
     }
   }
 }

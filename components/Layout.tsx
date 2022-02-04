@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import Head from 'next/head';
-import * as THREE from 'three';
-import useWindowDimensions from './utils/UseWindowDimensions';
+import Head from 'next/head'
+import React, { useEffect } from 'react'
+import styled from 'styled-components'
+import * as THREE from 'three'
+import useWindowDimensions from './utils/UseWindowDimensions'
 
 const HomeDiv = styled.div`
   background-repeat: no-repeat;
@@ -13,13 +13,13 @@ const HomeDiv = styled.div`
   min-height: 100vh;
   min-width: 100vw;
   z-index: -5;
-`;
+`
 
 const Canvas = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-`;
+`
 
 const Body = styled.div`
   display: flex;
@@ -29,77 +29,77 @@ const Body = styled.div`
   height: fit-content;
   padding-bottom: 5rem;
   z-index: 5;
-`;
+`
 
 const visibleHeightAtZDepth = (depth, camera) => {
   // compensate for cameras not positioned at z=0
-  const cameraOffset = camera.position.z;
-  if (depth < cameraOffset) depth -= cameraOffset;
-  else depth += cameraOffset;
+  const cameraOffset = camera.position.z
+  if (depth < cameraOffset) depth -= cameraOffset
+  else depth += cameraOffset
 
   // vertical fov in radians
-  const vFOV = (camera.fov * Math.PI) / 180;
+  const vFOV = (camera.fov * Math.PI) / 180
 
   // Math.abs to ensure the result is always positive
-  return 2 * Math.tan(vFOV / 2) * Math.abs(depth);
-};
+  return 2 * Math.tan(vFOV / 2) * Math.abs(depth)
+}
 
 const visibleWidthAtZDepth = (depth, camera) => {
-  const height = visibleHeightAtZDepth(depth, camera);
-  return height * camera.aspect;
-};
+  const height = visibleHeightAtZDepth(depth, camera)
+  return height * camera.aspect
+}
 
 const Layout = props => {
-  const dimensions = useWindowDimensions();
+  const dimensions = useWindowDimensions()
 
   // === THREE.JS CODE START ===
   useEffect(() => {
-    var mouse = new THREE.Vector2(0, 0);
+    var mouse = new THREE.Vector2(0, 0)
     document.onmousemove = event => {
-      mouse.x = (event.clientX / dimensions.width) * 2 - 1;
-      mouse.y = -(event.clientY / dimensions.height) * 2 + 1;
-    };
-    const particles = new THREE.BufferGeometry();
+      mouse.x = (event.clientX / dimensions.width) * 2 - 1
+      mouse.y = -(event.clientY / dimensions.height) * 2 + 1
+    }
+    const particles = new THREE.BufferGeometry()
     const pMaterial = new THREE.PointsMaterial({
       size: 0.1,
       color: '#000000',
       map: new THREE.TextureLoader().load('/particle.png'),
       blending: THREE.AdditiveBlending,
       // transparent: true,
-    });
+    })
 
     // particleSystem.
     // particleSystem.sortParticles = true;
 
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(75, dimensions.width / dimensions.height, 0.1, 1000);
-    var renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(dimensions.width, dimensions.height);
-    renderer.setClearColor(0x000000, 0);
-    document.getElementById('canvas').appendChild(renderer.domElement);
-    camera.position.z = 5;
+    var scene = new THREE.Scene()
+    var camera = new THREE.PerspectiveCamera(75, dimensions.width / dimensions.height, 0.1, 1000)
+    var renderer = new THREE.WebGLRenderer({ alpha: true })
+    renderer.setSize(dimensions.width, dimensions.height)
+    renderer.setClearColor(0x000000, 0)
+    document.getElementById('canvas').appendChild(renderer.domElement)
+    camera.position.z = 5
 
-    const visibleWidth = visibleWidthAtZDepth(0, camera);
-    const visibleHeight = visibleHeightAtZDepth(0, camera);
+    const visibleWidth = visibleWidthAtZDepth(0, camera)
+    const visibleHeight = visibleHeightAtZDepth(0, camera)
 
-    const particleCount = 5000;
-    const baseV = 0.03;
-    const vVariance = 0.003;
-    const baseTurnSpeed = 0.02 * Math.PI;
-    const turnVariance = 0.002 * Math.PI;
-    const positions = [];
-    const velocities = [];
-    const angles = [];
+    const particleCount = 5000
+    const baseV = 0.03
+    const vVariance = 0.003
+    const baseTurnSpeed = 0.02 * Math.PI
+    const turnVariance = 0.002 * Math.PI
+    const positions = []
+    const velocities = []
+    const angles = []
     for (let i = 0; i < particleCount; i++) {
       positions.push(
         Math.random() * visibleWidth - visibleWidth / 2,
         Math.random() * visibleHeight - visibleHeight / 2,
         0,
-      );
-      velocities.push(Math.random() * vVariance, Math.random() * turnVariance, 0);
+      )
+      velocities.push(Math.random() * vVariance, Math.random() * turnVariance, 0)
       // velocities.push(0.01 + 0.001, 0.01 * Math.PI, 0);
 
-      angles.push(Math.random() * 2 * Math.PI);
+      angles.push(Math.random() * 2 * Math.PI)
 
       // velocities.push(
       //   (Math.round(Math.random()) * 2 - 1) * (Math.random() * 0.002 + 0.01),
@@ -107,37 +107,37 @@ const Layout = props => {
       //   0,
       // );
     }
-    particles.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
-    particles.setAttribute('velocity', new THREE.BufferAttribute(new Float32Array(velocities), 3));
-    particles.setAttribute('angles', new THREE.BufferAttribute(new Float32Array(angles), 1));
+    particles.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3))
+    particles.setAttribute('velocity', new THREE.BufferAttribute(new Float32Array(velocities), 3))
+    particles.setAttribute('angles', new THREE.BufferAttribute(new Float32Array(angles), 1))
 
-    console.log(particles.attributes.velocity);
-    console.log(particles.attributes.angles);
+    console.log(particles.attributes.velocity)
+    console.log(particles.attributes.angles)
 
-    const particleSystem = new THREE.Points(particles, pMaterial);
+    const particleSystem = new THREE.Points(particles, pMaterial)
 
-    scene.add(particleSystem);
+    scene.add(particleSystem)
 
-    const clock = new THREE.Clock();
-    console.log(particleSystem);
-    console.log(particles);
+    const clock = new THREE.Clock()
+    console.log(particleSystem)
+    console.log(particles)
 
-    const pi2 = Math.PI * 2;
+    const pi2 = Math.PI * 2
 
-    const pps = particles.attributes.position;
-    const pvs = particles.attributes.velocity;
-    const pas = particles.attributes.angles;
+    const pps = particles.attributes.position
+    const pvs = particles.attributes.velocity
+    const pas = particles.attributes.angles
 
     const updatePositions = () => {
       for (let i = 0, l = particleCount; i < l; i++) {
-        let angle = pas.getX(i);
-        let v = pvs.getX(i) + baseV;
-        let turnV = pvs.getY(i) + baseTurnSpeed;
+        let angle = pas.getX(i)
+        let v = pvs.getX(i) + baseV
+        let turnV = pvs.getY(i) + baseTurnSpeed
 
-        pps.setXY(i, pps.getX(i) + v * Math.cos(angle), pps.getY(i) + v * Math.sin(angle));
+        pps.setXY(i, pps.getX(i) + v * Math.cos(angle), pps.getY(i) + v * Math.sin(angle))
 
         if (pps.getX(i) > visibleWidth / 2 || pps.getX(i) < -visibleWidth / 2) {
-          pas.setX(i, Math.atan2(v * Math.sin(angle), -v * Math.cos(angle)));
+          pas.setX(i, Math.atan2(v * Math.sin(angle), -v * Math.cos(angle)))
 
           // if (pps.getX(i) > visibleWidth / 2) {
           //   pps.setX(i, visibleWidth / 2 + v * Math.cos(angle));
@@ -145,7 +145,7 @@ const Layout = props => {
           //   pps.setX(i, -visibleWidth / 2 + v * Math.cos(angle));
           // }
         } else if (pps.getY(i) > visibleHeight / 2 || pps.getY(i) < -visibleHeight / 2) {
-          pas.setX(i, Math.atan2(-v * Math.sin(angle), v * Math.cos(angle)));
+          pas.setX(i, Math.atan2(-v * Math.sin(angle), v * Math.cos(angle)))
           // if (pps.getY(i) > visibleHeight / 2) {
           //   pps.setY(i, visibleHeight / 2 + v * Math.sin(angle));
           // } else {
@@ -153,22 +153,22 @@ const Layout = props => {
           // }
           // } else if (i % 100 !== 0 && i > 0) {
         } else if (i % 200 !== 0 && i > 0) {
-          let goalAngle = Math.atan2(pps.getY(i - 1) - pps.getY(i), pps.getX(i - 1) - pps.getX(i));
+          let goalAngle = Math.atan2(pps.getY(i - 1) - pps.getY(i), pps.getX(i - 1) - pps.getX(i))
           let newAngle =
             ((goalAngle - angle + Math.PI) % pi2) - Math.PI < turnV
               ? goalAngle
               : goalAngle > (angle + Math.PI) % pi2
               ? angle - turnV
-              : angle + turnV;
-          pas.setX(i, newAngle % pi2);
+              : angle + turnV
+          pas.setX(i, newAngle % pi2)
         }
         // pas.setX(i, (angle + pvs.getY(i)) % pi2);
       }
-    };
+    }
 
     var animate = function () {
-      updatePositions();
-      particles.attributes.position.needsUpdate = true;
+      updatePositions()
+      particles.attributes.position.needsUpdate = true
 
       // for (let i = 0; i < particleCount * 3; i++) {
       //   particles.attributes.position.array[0] += 0.02;
@@ -186,17 +186,17 @@ const Layout = props => {
       //   particleSystem.rotation.y = mouse.x + time * 0.025;
       //   particleSystem.rotation.x = -mouse.y + time * 0.01;
       // }
-      particleSystem.material.color.set('#00ffff');
+      particleSystem.material.color.set('#00ffff')
 
       // if (renderer.width !== dimensions.width || renderer.height !== dimensions.height) {
       //   renderer.setSize(dimensions.width, dimensions.height);
       // }
 
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    };
-    animate();
-  }, [dimensions]);
+      renderer.render(scene, camera)
+      requestAnimationFrame(animate)
+    }
+    animate()
+  }, [dimensions])
 
   return (
     <HomeDiv>
@@ -206,7 +206,7 @@ const Layout = props => {
       <Canvas id="canvas" />
       <Body>{props.children}</Body>
     </HomeDiv>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout
